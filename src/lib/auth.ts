@@ -27,7 +27,10 @@ export const authOptions: NextAuthOptions = {
             throw new Error("User Not found");
           }
 
-          const isValid = bcrypt.compare(credentials.password, user.password);
+          const isValid = await bcrypt.compare(
+            credentials.password,
+            user.password
+          );
 
           if (!isValid) {
             throw new Error("Your password is not correct");
@@ -44,4 +47,30 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
+
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id;
+      }
+      return session;
+    },
+  },
+
+  pages: {
+    signIn: "/login",
+    error: "/error",
+  },
+
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60,
+  },
 };
