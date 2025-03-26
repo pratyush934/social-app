@@ -27,7 +27,9 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(await response.text());
+      const errorText = await response.text(); // Read the response body as text
+      console.error(`Error: ${errorText}`); // Log the error
+      throw new Error(errorText); // Throw an error with the response text
     }
 
     return response.json();

@@ -9,6 +9,7 @@ const imagekit = new ImageKit({
 
 export async function GET() {
   try {
+    console.log("Everything is working fine");
     return NextResponse.json(imagekit.getAuthenticationParameters());
   } catch (er) {
     console.log("there is an error in imagekit-auth/route.ts", er);

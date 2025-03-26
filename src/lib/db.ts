@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const MONGODB_URL = process.env.MONGODB_URI!;
+const MONGODB_URL = process.env.MONGODB_URL!;
 
 if (!MONGODB_URL) {
   throw new Error("Please add valid MONGODB_URL and be sciencer");
@@ -13,7 +13,7 @@ if (!cache) {
 }
 
 export async function connectToDB() {
-  if (!cache.conn) {
+  if (cache.conn) {
     return cache.conn;
   }
 

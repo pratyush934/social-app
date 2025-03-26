@@ -24,7 +24,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await User.create({ email, password });
+    const ans = await User.create({ email, password });
+    console.log(ans);
 
     return NextResponse.json(
       { message: "User is finally registered" },

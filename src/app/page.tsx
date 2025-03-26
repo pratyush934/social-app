@@ -1,26 +1,32 @@
+"use client";
+
 import { apiClient } from "@/lib/api-client";
 import { VideoI } from "@/models/Video";
-import { CloudCog } from "lucide-react";
 import { useEffect, useState } from "react";
+import VideoFeed from "./components/VideoFeed";
+import Header from "./components/Header";
 
 export default function Home() {
-  const [videos, setVideos] = useState<VideoI[]>();
+  const [videos, setVideos] = useState<VideoI[]>([]);
 
   useEffect(() => {
-    const fetchAllVideos = async () => {
+    const fetchVideos = async () => {
       try {
         const data = await apiClient.getVideos();
         setVideos(data);
-      } catch (e) {
-        console.error();
+      } catch (error) {
+        console.error("Error fetching videos:", error);
       }
     };
-    fetchAllVideos();
+
+    fetchVideos();
   }, []);
 
   return (
-    <div>
-      <h1>ChaiCode</h1>
-    </div>
+    <main className="container mx-auto px-4 py-8">
+      <Header />
+      <h1 className="text-3xl font-bold mb-8">ImageKit ReelsPro</h1>
+      <VideoFeed videos={videos} />
+    </main>
   );
 }

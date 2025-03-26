@@ -33,9 +33,8 @@ const Register = () => {
     } catch (e) {
       console.log(e);
     }
-  };
+};
 
-  router.push("/login");
 
   return (
     <div className="max-w-md mx-auto">
