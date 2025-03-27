@@ -39,7 +39,7 @@ export default function VideoUploadForm() {
       thumbnailurl: "",
     },
   });
-  const router = useRouter();
+   const router = useRouter();
 
   const handleUploadSuccess = (response: IKUploadResponse) => {
     setValue("videourl", response.filePath);
@@ -68,7 +68,7 @@ export default function VideoUploadForm() {
       setValue("videourl", "");
       setValue("thumbnailurl", "");
       setUploadProgress(0);
-      router.push("/");
+      router.push("/")
     } catch (error) {
       showNotification(
         error instanceof Error ? error.message : "Failed to publish video",
