@@ -1,19 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { apiClient } from "@/lib/api-client";
+import { VideoI } from "@/models/Video";
 import { IKUploadResponse } from "imagekitio-next/dist/types/components/IKUpload/props";
 import { Loader2 } from "lucide-react";
-import { useNotification } from "./Notification";
-import { apiClient } from "@/lib/api-client";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import FileUpload from "./FileUpload";
+import { useNotification } from "./Notification";
+import { useRouter } from "next/navigation";
 
-interface VideoFormData {
-  title: string;
-  description: string;
-  videoUrl: string;
-  thumbnailUrl: string;
-}
+// interface VideoFormData {
+//   title: string;
+//   description: string;
+//   videoUrl: string;
+//   thumbnailUrl: string;
+//   createdAt: Date;
+//   updatedAt: Date;
+// }
+
+type VideoFormData = Omit<VideoI, "_id">;
 
 export default function VideoUploadForm() {
   const [loading, setLoading] = useState(false);
@@ -24,78 +30,45 @@ export default function VideoUploadForm() {
     register,
     handleSubmit,
     setValue,
-    watch, // Add watch
     formState: { errors },
   } = useForm<VideoFormData>({
     defaultValues: {
       title: "",
       description: "",
-      videoUrl: "",
-      thumbnailUrl: "",
+      videourl: "",
+      thumbnailurl: "",
     },
   });
-
-  // Then in your component
-  const videoUrl = watch("videoUrl"); // This will watch the videoUrl field
-
-  console.log("This is videoURl -----> ", videoUrl);
+  const router = useRouter();
 
   const handleUploadSuccess = (response: IKUploadResponse) => {
-    console.group("ImageKit Upload Debug");
-    console.log("Full Response:", response);
-    console.log("Response Type:", typeof response);
-    console.log("Response Keys:", Object.keys(response));
-
-    // Try to extract URL through multiple methods
-    const videoUrl =
-      response.url ||
-      response.filePath ||
-      response.fileUrl ||
-      (response as any).file ||
-      "";
-
-    console.log("Extracted Video URL:", videoUrl);
-
-    if (!videoUrl) {
-      console.error("Could not extract video URL from response");
-      showNotification("Failed to get video URL", "error");
-      return;
-    }
-
-    setValue("videoUrl", videoUrl);
-    setValue("thumbnailUrl", response.thumbnailUrl || videoUrl);
-
-    console.groupEnd();
+    setValue("videourl", response.filePath);
+    setValue("thumbnailurl", response.thumbnailUrl || response.filePath);
     showNotification("Video uploaded successfully!", "success");
   };
+
   const handleUploadProgress = (progress: number) => {
     setUploadProgress(progress);
   };
 
   const onSubmit = async (data: VideoFormData) => {
-    if (!data.videoUrl || data.videoUrl.trim() === "") {
+    if (!data.videourl) {
       showNotification("Please upload a video first", "error");
       return;
     }
-    // ... rest of the function
 
     setLoading(true);
     try {
-      await apiClient.postVideo({
-        ...data,
-        videourl: data.videoUrl,
-        thumbnailurl: data.thumbnailUrl,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
+      await apiClient.postVideo(data);
       showNotification("Video published successfully!", "success");
 
       // Reset form after successful submission
       setValue("title", "");
       setValue("description", "");
-      setValue("videoUrl", "");
-      setValue("thumbnailUrl", "");
+      setValue("videourl", "");
+      setValue("thumbnailurl", "");
       setUploadProgress(0);
+      router.push("/");
     } catch (error) {
       showNotification(
         error instanceof Error ? error.message : "Failed to publish video",
@@ -159,7 +132,7 @@ export default function VideoUploadForm() {
       <button
         type="submit"
         className="btn btn-primary btn-block"
-        disabled={loading} // Remove uploadProgress check
+        disabled={loading || !uploadProgress}
       >
         {loading ? (
           <>
